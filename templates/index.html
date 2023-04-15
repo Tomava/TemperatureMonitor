@@ -1,0 +1,14 @@
+<form method="post" action="/">
+  <input type="submit" name="time_range" value="24h">
+  <input type="submit" name="time_range" value="3d">
+  <input type="submit" name="time_range" value="7d">
+  <input type="submit" name="time_range" value="31d">
+  <input type="submit" name="time_range" value="1y">
+  <input type="submit" name="time_range" value="3y">
+  <input type="submit" name="time_range" value="all">
+</form>
+
+<!-- Display the plot image -->
+{% if plot_data %}
+  <img src="data:image/png;base64,{{ plot_data }}" alt="Plot">
+{% endif %}
