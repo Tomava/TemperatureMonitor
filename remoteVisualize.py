@@ -5,16 +5,28 @@ import matplotlib.pyplot as plt
 from io import BytesIO
 import base64
 from datetime import datetime, timedelta
+import pysftp
 import os
+import webbrowser
+from config import SFTP_HOSTNAME, SFTP_USERNAME, SFTP_PASSWORD
 
 DIR_PATH = "data"
-FILE1 = f"{DIR_PATH}{os.sep}sensor.csv"
-FILE2 = f"{DIR_PATH}{os.sep}outside.csv"
+FILE1_LOCAL_PATH = f"{DIR_PATH}{os.sep}sensor.csv"
+FILE2_LOCAL_PATH = f"{DIR_PATH}{os.sep}outside.csv"
+FILE1_REMOTE_PATH = "/home/pi/Temperature/data/sensor.csv"
+FILE2_REMOTE_PATH = "/home/pi/Temperature/data/outside.csv"
+
+
+def fetch_files():
+    with pysftp.Connection(SFTP_HOSTNAME, username=SFTP_USERNAME, password=SFTP_PASSWORD) as sftp:
+        sftp.get(FILE1_REMOTE_PATH, FILE1_LOCAL_PATH)
+        sftp.get(FILE2_REMOTE_PATH, FILE2_LOCAL_PATH)
+
 
 def read_dataframes():
     # Load data from CSV files
-    df1 = pd.read_csv(FILE1, sep=";")
-    df2 = pd.read_csv(FILE2, sep=";")
+    df1 = pd.read_csv(FILE1_LOCAL_PATH, sep=";")
+    df2 = pd.read_csv(FILE2_LOCAL_PATH, sep=";")
     return df1, df2
 
 
@@ -95,4 +107,6 @@ def visualize_data():
         return render_template('index.html')
 
 if __name__ == "__main__":
-    serve(app, host="0.0.0.0", port=50100)
+    fetch_files()
+    webbrowser.open("http://127.0.0.1:50100")
+    serve(app, host="127.0.0.1", port=50100)
