@@ -4,7 +4,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from io import BytesIO
 import base64
-from datetime import datetime, timedelta
+from dateutil.relativedelta import relativedelta
+from datetime import datetime
 import pysftp
 import os
 import webbrowser
@@ -41,6 +42,10 @@ def create_plot(column_name, column_title, df1, df2, index):
     plt.legend()
     plt.grid(True)
 
+
+def get_max_and_min(column_name, df):
+    return df[column_name].max(), df[column_name].min()
+
 app = Flask(__name__)
 
 @app.route('/', methods=['GET', 'POST'])
@@ -63,17 +68,19 @@ def visualize_data():
 
         # Define time delta for different time ranges
         if time_range == '24h':
-            start_date = now - timedelta(hours=24)
+            start_date = now - relativedelta(hours=24)
         elif time_range == '3d':
-            start_date = now - timedelta(days=3)
+            start_date = now - relativedelta(days=3)
         elif time_range == '7d':
-            start_date = now - timedelta(days=7)
+            start_date = now - relativedelta(days=7)
         elif time_range == '31d':
-            start_date = now - timedelta(days=31)
+            start_date = now - relativedelta(days=31)
+        elif time_range == '3M':
+            start_date = now - relativedelta(months=3)
         elif time_range == '1y':
-            start_date = now - timedelta(days=365)
+            start_date = now - relativedelta(years=1)
         elif time_range == '3y':
-            start_date = now - timedelta(days=3*365)
+            start_date = now - relativedelta(years=3)
         elif time_range == 'all':
             start_date = df1.index.min()
 
@@ -90,6 +97,13 @@ def visualize_data():
         create_plot("humidity", "Humidity", df1, df2, 2)
         create_plot("pressure", "Pressure", df1, df2, 3)
 
+        max_temperature_in, min_temperature_in = get_max_and_min("temperature", df1)
+        max_temperature_out, min_temperature_out = get_max_and_min("temperature", df2)
+        max_humidity_in, min_humidity_in = get_max_and_min("humidity", df1)
+        max_humidity_out, min_humidity_out = get_max_and_min("humidity", df2)
+        max_pressure_in, min_pressure_in = get_max_and_min("pressure", df1)
+        max_pressure_out, min_pressure_out = get_max_and_min("pressure", df2)
+
         # Adjust spacing between subplots
         plt.subplots_adjust(hspace=0.4)
 
@@ -101,7 +115,19 @@ def visualize_data():
         buffer.close()
         # Convert the plot data to base64 encoded string
         plot_data = base64.b64encode(plot_data).decode('utf-8')
-        return render_template('index.html', plot_data=plot_data)
+        return render_template('index.html', plot_data=plot_data, 
+                                max_temperature_in=max_temperature_in, 
+                                min_temperature_in=min_temperature_in,
+                                max_temperature_out=max_temperature_out,
+                                min_temperature_out=min_temperature_out,
+                                max_humidity_in=max_humidity_in,
+                                min_humidity_in=min_humidity_in,
+                                max_humidity_out=max_humidity_out,
+                                min_humidity_out=min_humidity_out,
+                                max_pressure_in=max_pressure_in,
+                                min_pressure_in=min_pressure_in,
+                                max_pressure_out=max_pressure_out,
+                                min_pressure_out=min_pressure_out)
 
     else:
         return render_template('index.html')
@@ -110,3 +136,4 @@ if __name__ == "__main__":
     fetch_files()
     webbrowser.open("http://127.0.0.1:50100")
     serve(app, host="127.0.0.1", port=50100)
+    #app.run(debug=True)

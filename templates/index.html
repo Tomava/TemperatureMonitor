@@ -1,14 +1,91 @@
-<form method="post" action="/">
-  <input type="submit" name="time_range" value="24h">
-  <input type="submit" name="time_range" value="3d">
-  <input type="submit" name="time_range" value="7d">
-  <input type="submit" name="time_range" value="31d">
-  <input type="submit" name="time_range" value="1y">
-  <input type="submit" name="time_range" value="3y">
-  <input type="submit" name="time_range" value="all">
-</form>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Measures</title>
+    <style>
+      table {
+          border-collapse: collapse;
+          width: 100%;
+      }
 
+      th, td {
+          border: 1px solid black;
+          padding: 6px;
+          text-align: left;
+      }
+      th {
+          background-color: #f2f2f2;
+      }
+      tr:nth-child(even) td {
+          background-color: #1f77b4; /* blue */
+          color: #fff; /* white */
+      }
+
+      tr:nth-child(odd) td {
+          background-color: #ff7f0e; /* orange */
+          color: #fff; /* white */
+      }
+      .btn-container {
+          padding: 10px;
+      }
+  </style>
+</head>
+<div class="btn-container">
+  <form method="post" action="/">
+    <input type="submit" name="time_range" value="24h">
+    <input type="submit" name="time_range" value="3d">
+    <input type="submit" name="time_range" value="7d">
+    <input type="submit" name="time_range" value="31d">
+    <input type="submit" name="time_range" value="3M">
+    <input type="submit" name="time_range" value="1y">
+    <input type="submit" name="time_range" value="3y">
+    <input type="submit" name="time_range" value="all">
+  </form>
+</div>
+<div>
+  <body>
+    <table>
+        <tr>
+            <th></th>
+            <th>Min</th>
+            <th>Max</th>
+        </tr>
+        <tr>
+            <td>Temperature In</td>
+            <td>{{ min_temperature_in }}</td>
+            <td>{{ max_temperature_in }}</td>
+        </tr>
+        <tr>
+            <td>Temperature Out</td>
+            <td>{{ min_temperature_out }}</td>
+            <td>{{ max_temperature_out }}</td>
+        </tr>
+        <tr>
+            <td>Humidity In</td>
+            <td>{{ min_humidity_in }}</td>
+            <td>{{ max_humidity_in }}</td>
+        </tr>
+        <tr>
+            <td>Humidity Out</td>
+            <td>{{ min_humidity_out }}</td>
+            <td>{{ max_humidity_out }}</td>
+        </tr>
+        <tr>
+            <td>Pressure In</td>
+            <td>{{ min_pressure_in }}</td>
+            <td>{{ max_pressure_in }}</td>
+        </tr>
+        <tr>
+            <td>Pressure Out</td>
+            <td>{{ min_pressure_out }}</td>
+            <td>{{ max_pressure_out }}</td>
+        </tr>
+    </table>
+  </body>
+</div>
 <!-- Display the plot image -->
 {% if plot_data %}
   <img src="data:image/png;base64,{{ plot_data }}" alt="Plot">
 {% endif %}
+
+</html>
