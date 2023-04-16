@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request
+from waitress import serve
 import pandas as pd
 import matplotlib.pyplot as plt
 from io import BytesIO
@@ -94,4 +95,4 @@ def visualize_data():
         return render_template('index.html')
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    serve(app, host="0.0.0.0", port=50100)
