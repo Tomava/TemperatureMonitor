@@ -75,9 +75,9 @@ def write_csv(filename, data):
 def main():
     sensor_data = read_sensor()
     api_data = read_api_weather_data()
-    now = datetime.datetime.now().isoformat()
-    write_csv("sensor.csv", [now] + sensor_data)
-    write_csv("outside.csv", [now] + api_data)
+    now = datetime.datetime.now()
+    write_csv(f"inside_{now.strftime('%Y-%m')}.csv", [now.isoformat()] + sensor_data)
+    write_csv(f"outside_{now.strftime('%Y-%m')}.csv", [now.isoformat()] + api_data)
 
 if __name__ == "__main__":
     main()

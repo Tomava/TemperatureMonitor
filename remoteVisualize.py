@@ -11,23 +11,28 @@ import os
 import webbrowser
 from config import SFTP_HOSTNAME, SFTP_USERNAME, SFTP_PASSWORD
 
-DIR_PATH = "data"
-FILE1_LOCAL_PATH = f"{DIR_PATH}{os.sep}sensor.csv"
-FILE2_LOCAL_PATH = f"{DIR_PATH}{os.sep}outside.csv"
-FILE1_REMOTE_PATH = "/home/pi/Temperature/data/sensor.csv"
-FILE2_REMOTE_PATH = "/home/pi/Temperature/data/outside.csv"
+LOCAL_DATA_DIR = "data"
+REMOTE_DATA_DIR = "/home/pi/Temperature/data"
 
 
 def fetch_files():
+    print("Fetching files")
     with pysftp.Connection(SFTP_HOSTNAME, username=SFTP_USERNAME, password=SFTP_PASSWORD) as sftp:
-        sftp.get(FILE1_REMOTE_PATH, FILE1_LOCAL_PATH)
-        sftp.get(FILE2_REMOTE_PATH, FILE2_LOCAL_PATH)
-
+        for i, file in enumerate(sftp.listdir(REMOTE_DATA_DIR)):
+            sftp.get(f"{REMOTE_DATA_DIR}/{file}", f"{LOCAL_DATA_DIR}{os.sep}{file}")
+    print(f'Successfully retrieved {i + 1} files from {REMOTE_DATA_DIR} to {LOCAL_DATA_DIR}')
 
 def read_dataframes():
-    # Load data from CSV files
-    df_in = pd.read_csv(FILE1_LOCAL_PATH, sep=";")
-    df_out = pd.read_csv(FILE2_LOCAL_PATH, sep=";")
+    df_ins = []
+    df_outs = []
+    for file in os.listdir(LOCAL_DATA_DIR):
+        df = pd.read_csv(f"{LOCAL_DATA_DIR}{os.sep}{file}", sep=";")
+        if file.startswith("inside"):
+            df_ins.append(df)
+        else:
+            df_outs.append(df)
+    df_in = pd.concat(df_ins)
+    df_out = pd.concat(df_outs)
     return df_in, df_out
 
 
