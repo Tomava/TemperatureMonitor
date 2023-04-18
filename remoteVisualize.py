@@ -49,7 +49,7 @@ def create_plot(column_name, column_title, df_in, df_out, index):
 
 
 def get_values(column_name, df):
-    return df[column_name].max(), df[column_name].min(), round(df[column_name].mean(), 2), df[column_name].iloc[-1]
+    return df[column_name].min(), df[column_name].max(), round(df[column_name].mean(), 2), df[column_name].iloc[-1]
 
 
 def add_to_data(data: dict, data_name: str, column_name: str, df: pd.DataFrame):
