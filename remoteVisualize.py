@@ -49,7 +49,18 @@ def create_plot(column_name, column_title, df_in, df_out, index):
 
 
 def get_values(column_name, df):
-    return df[column_name].max(), df[column_name].min(), round(df[column_name].mean(), 2)
+    return df[column_name].max(), df[column_name].min(), round(df[column_name].mean(), 2), df[column_name].iloc[-1]
+
+
+def add_to_data(data: dict, data_name: str, column_name: str, df: pd.DataFrame):
+    min_value, max_value, avg_value, current_value = get_values(column_name, df)
+    data[data_name] = {
+            'min': min_value,
+            'max': max_value,
+            'avg': avg_value,
+            'current': current_value
+    }
+
 
 app = Flask(__name__)
 
@@ -103,45 +114,14 @@ def visualize_data():
     create_plot("humidity", "Humidity", df_in, df_out, 2)
     create_plot("pressure", "Pressure", df_in, df_out, 3)
 
-    max_temperature_in, min_temperature_in, avg_temperature_in = get_values("temperature", df_in)
-    max_temperature_out, min_temperature_out, avg_temperature_out = get_values("temperature", df_out)
-    max_humidity_in, min_humidity_in, avg_humidity_in = get_values("humidity", df_in)
-    max_humidity_out, min_humidity_out, avg_humidity_out = get_values("humidity", df_out)
-    max_pressure_in, min_pressure_in, avg_pressure_in = get_values("pressure", df_in)
-    max_pressure_out, min_pressure_out, avg_pressure_out = get_values("pressure", df_out)
+    data = {}
 
-    data = {
-        'temperature_in': {
-            'min': min_temperature_in,
-            'max': max_temperature_in,
-            'avg': avg_temperature_in
-        },
-        'temperature_out': {
-            'min': min_temperature_out,
-            'max': max_temperature_out,
-            'avg': avg_temperature_out
-        },
-        'humidity_in': {
-            'min': min_humidity_in,
-            'max': max_humidity_in,
-            'avg': avg_humidity_in
-        },
-        'humidity_out': {
-            'min': min_humidity_out,
-            'max': max_humidity_out,
-            'avg': avg_humidity_out
-        },
-        'pressure_in': {
-            'min': min_pressure_in,
-            'max': max_pressure_in,
-            'avg': avg_pressure_in
-        },
-        'pressure_out': {
-            'min': min_pressure_out,
-            'max': max_pressure_out,
-            'avg': avg_pressure_out
-        }
-    }
+    add_to_data(data, "temperature_in", "temperature", df_in)
+    add_to_data(data, "temperature_out", "temperature", df_out)
+    add_to_data(data, "humidity_in", "humidity", df_in)
+    add_to_data(data, "humidity_out", "humidity", df_out)
+    add_to_data(data, "pressure_in", "pressure", df_in)
+    add_to_data(data, "pressure_out", "pressure", df_out)
 
     # Adjust spacing between subplots
     plt.subplots_adjust(hspace=0.4)
