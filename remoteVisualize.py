@@ -140,7 +140,7 @@ def visualize_data():
     return render_template('index.html', plot_data=plot_data, data=data)
 
 if __name__ == "__main__":
-    #fetch_files()
+    fetch_files()
     webbrowser.open("http://127.0.0.1:50100")
     serve(app, host="127.0.0.1", port=50100)
     #app.run(debug=True)
