@@ -46,6 +46,9 @@ def create_plot(column_name, column_title, df_in, df_out, index):
     plt.title(column_title)
     plt.legend()
     plt.grid(True)
+    yticks = [i for i in range(int(min(min(df_out[column_name]), min(df_in[column_name]))), int(max(max(df_out[column_name]), max(df_in[column_name])) + 2), 1)]
+    plt.yticks(yticks, minor=True)
+    plt.grid(which='minor', alpha=0.4)
 
 
 def get_values(column_name, df):
@@ -137,7 +140,7 @@ def visualize_data():
     return render_template('index.html', plot_data=plot_data, data=data)
 
 if __name__ == "__main__":
-    fetch_files()
+    #fetch_files()
     webbrowser.open("http://127.0.0.1:50100")
     serve(app, host="127.0.0.1", port=50100)
     #app.run(debug=True)
