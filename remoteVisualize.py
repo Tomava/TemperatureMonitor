@@ -46,7 +46,7 @@ def create_plot(column_name, column_title, df_in, df_out, index):
     plt.title(column_title)
     plt.legend()
     plt.grid(True)
-    yticks = [i for i in range(int(min(min(df_out[column_name]), min(df_in[column_name]))), int(max(max(df_out[column_name]), max(df_in[column_name])) + 2), 1)]
+    yticks = [i for i in range(int(min(df_out[column_name].min(), df_in[column_name].min())), int(max(df_out[column_name].max(), df_in[column_name].max()) + 2), 1)]
     plt.yticks(yticks, minor=True)
     plt.grid(which='minor', alpha=0.4)
 
