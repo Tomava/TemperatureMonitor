@@ -14,7 +14,7 @@ dataRouter.get('/', async (request, response) => {
     }
   };
 
-  const directoryPath = `..${path.sep}data`;
+  const directoryPath = `..${path.sep}data-fetching${path.sep}data`;
   const filenames = getFilenamesInDir(directoryPath);
   const filePaths = filenames.map((filename) => `${directoryPath}${path.sep}${filename}`)
   
