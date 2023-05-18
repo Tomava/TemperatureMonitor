@@ -2,9 +2,10 @@ import React from 'react';
 import { Line } from 'react-chartjs-2';
 import { Chart, registerables } from 'chart.js';
 import 'chartjs-adapter-date-fns';
+import zoomPlugin from 'chartjs-plugin-zoom';
 
 // Register the necessary adapters and controllers
-Chart.register(...registerables);
+Chart.register(...registerables, zoomPlugin);
 
 const LineGraph = ({ data }) => {
   const insideData = data.InsideData
@@ -23,7 +24,6 @@ const LineGraph = ({ data }) => {
         backgroundColor: 'rgba(255, 99, 132, 0.5)',
         borderColor: 'rgb(255, 99, 132)',
         borderWidth: 1,
-        yAxisID: 'yInside',
       },
       {
         label: 'Outside',
@@ -31,7 +31,6 @@ const LineGraph = ({ data }) => {
         backgroundColor: 'rgba(53, 162, 235, 0.5)',
         borderColor: 'rgb(53, 162, 235)',
         borderWidth: 1,
-        yAxisID: 'yOutside',
       },
     ],
   };
@@ -56,6 +55,23 @@ const LineGraph = ({ data }) => {
         display: true,
         ticks: {
           beginAtZero: true,
+        },
+      },
+    },
+    plugins: {
+      zoom: {
+        zoom: {
+          wheel: {
+            enabled: true,
+          },
+          pinch: {
+            enabled: true,
+          },
+          mode: 'xy',
+        },
+        pan: {
+          enabled: true,
+          mode: 'xy',
         },
       },
     },
