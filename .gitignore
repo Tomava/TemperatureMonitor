@@ -1,6 +1,8 @@
 .env
 TODO.txt
 *.csv
+*.csv#
 *.log
 __pycache__
 .vscode
+node_modules/
