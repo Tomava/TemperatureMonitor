@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request
 from flask_httpauth import HTTPBasicAuth
 import os
 import pandas as pd
@@ -28,7 +28,7 @@ def read_dataframes():
     return df_in, df_out
 
 
-def get_data():
+def get_data(start_time, end_time):
     df_in, df_out = read_dataframes()
     df_in = df_in.dropna()
     df_out = df_out.dropna()
@@ -41,10 +41,15 @@ def get_data():
 
     merged_df = pd.merge(df_in, df_out, on=common_column, suffixes=("_in", "_out"))
 
+    if start_time is not None:
+        merged_df = merged_df[merged_df[common_column] >= pd.to_datetime(start_time)]
+    if end_time is not None:
+        merged_df = merged_df[merged_df[common_column] <= pd.to_datetime(end_time)]
+
     result_dict = {}
     for _, row in merged_df.iterrows():
         time: pd.Timestamp = row[common_column]
-        result_dict[str(time.timestamp())] = {
+        result_dict[str(time)] = {
             "in": {
                 "humidity": row["humidity_in"],
                 "pressure": row["pressure_in"],
@@ -62,7 +67,11 @@ def get_data():
 @app.get("/temperature")
 @auth.login_required
 def temperature_get():
-    data = get_data()
+    start_time_str = request.args.get("start_time")
+    end_time_str = request.args.get("end_time")
+    start_time = pd.to_datetime(start_time_str) if start_time_str else None
+    end_time = pd.to_datetime(end_time_str) if end_time_str else None
+    data = get_data(start_time, end_time)
     return data
 
 
