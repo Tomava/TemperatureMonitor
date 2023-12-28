@@ -61,13 +61,13 @@ def write_csv(filename, data):
     headers = ["time", "data_time", "temperature", "pressure", "humidity", "raw_data"]
     # Create file only once
     if not os.path.isfile(filepath):
-        with open(filepath, "w", newline="") as csvfile:
+        with open(filepath, "w", newline="", encoding="utf-8") as csvfile:
             writer = csv.writer(csvfile, delimiter=";")
             writer.writerow(headers)
     stringified_data = []
     for row in data:
         stringified_data.append(str(row))
-    with open(filepath, "a+", newline="") as csvfile:
+    with open(filepath, "a+", newline="", encoding="utf-8") as csvfile:
         writer = csv.writer(csvfile, delimiter=";")
         print(stringified_data)
         writer.writerows([stringified_data])
@@ -81,5 +81,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-

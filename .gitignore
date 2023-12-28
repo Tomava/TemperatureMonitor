@@ -6,3 +6,4 @@ TODO.txt
 __pycache__
 .vscode
 node_modules/
+venv/
