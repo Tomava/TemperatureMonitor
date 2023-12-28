@@ -5,7 +5,7 @@ import os
 import urllib.request
 import json
 import datetime
-from config import WEATHER_API
+from config import WEATHER_API, DATA_DIR
 
 LATITUDE = 61.45
 LONGITUDE = 23.85
@@ -57,7 +57,7 @@ def read_api_weather_data():
     return fetched_data
 
 def write_csv(filename, data):
-    filepath = f"data/{filename}"
+    filepath = os.path.join(DATA_DIR, filename)
     headers = ["time", "data_time", "temperature", "pressure", "humidity", "raw_data"]
     # Create file only once
     if not os.path.isfile(filepath):
