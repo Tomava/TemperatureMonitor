@@ -5,10 +5,7 @@ import os
 import urllib.request
 import json
 import datetime
-from config import WEATHER_API, DATA_DIR
-
-LATITUDE = 61.45
-LONGITUDE = 23.85
+from config import WEATHER_API, DATA_DIR, LATITUDE, LONGITUDE
 
 def read_sensor():
     port = 1
@@ -22,14 +19,11 @@ def read_sensor():
     data = bme280.sample(bus, address, calibration_params)
 
     data_time = data.timestamp.timestamp()
-    temperature = round(data.temperature, 2)
-    pressure = round(data.pressure, 2)
-    humidity = round(data.humidity, 2)
+    temperature = data.temperature
+    pressure = data.pressure
+    humidity = data.humidity
 
-    # there is a handy string representation too
-    #print(data)
-
-    return [data_time, temperature, pressure, humidity, data]
+    return [data_time, temperature, pressure, humidity]
 
 def fetch_api_weather_data():
     """
@@ -50,15 +44,22 @@ def read_api_weather_data():
     if data is not None:
         current_data = data.get("current")
         data_time = current_data.get("dt")
-        temperature = round(current_data.get("temp"), 2)
-        pressure = round(current_data.get("pressure"), 2)
-        humidity = round(current_data.get("humidity"), 2)
-        fetched_data.extend([data_time, temperature, pressure, humidity, current_data])
+        temperature = current_data.get("temp")
+        feels_like = current_data.get("feels_like")
+        pressure = current_data.get("pressure")
+        humidity = current_data.get("humidity")
+        dew_point = current_data.get("dew_point")
+        uv_index = current_data.get("uvi")
+        clouds = current_data.get("clouds")
+        wind_speed = current_data.get("wind_speed")
+        wind_deg = current_data.get("wind_deg")
+        weather = current_data.get("weather")[0].get("description")
+        fetched_data.extend([data_time, temperature, pressure, humidity, feels_like, dew_point, uv_index, clouds, wind_speed, wind_deg, weather])
     return fetched_data
 
-def write_csv(filename, data):
+def write_csv(filename, data, headers):
     filepath = os.path.join(DATA_DIR, filename)
-    headers = ["time", "data_time", "temperature", "pressure", "humidity", "raw_data"]
+
     # Create file only once
     if not os.path.isfile(filepath):
         with open(filepath, "w", newline="", encoding="utf-8") as csvfile:
@@ -76,8 +77,10 @@ def main():
     sensor_data = read_sensor()
     api_data = read_api_weather_data()
     now = datetime.datetime.now()
-    write_csv(f"inside_{now.strftime('%Y-%m')}.csv", [now.isoformat()] + sensor_data)
-    write_csv(f"outside_{now.strftime('%Y-%m')}.csv", [now.isoformat()] + api_data)
+    in_headers = ["time", "data_time", "temperature", "pressure", "humidity"]
+    out_headers = ["time", "data_time", "temperature", "pressure", "humidity", "feels_like", "dew_point", "uv_index", "clouds", "wind_speed", "wind_deg", "weather"]
+    write_csv(f"inside_{now.strftime('%Y-%m')}.csv", [now.isoformat()] + sensor_data, in_headers)
+    write_csv(f"outside_{now.strftime('%Y-%m')}.csv", [now.isoformat()] + api_data, out_headers)
 
 if __name__ == "__main__":
     main()
