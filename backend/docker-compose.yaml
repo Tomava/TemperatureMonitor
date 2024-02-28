@@ -1,0 +1,16 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./data:/app/data
+      - /etc/localtime:/etc/localtime
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    logging:
+      driver: "json-file"
+    environment:
+      - PYTHONUNBUFFERED=1
+    command: ["python3", "api.py"]

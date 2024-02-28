@@ -1,12 +1,13 @@
+import os
 from flask import Flask, request
 from flask_httpauth import HTTPBasicAuth
-import os
 import pandas as pd
-from config import ADMIN_USER, ADMIN_PASS, DATA_DIR
+import waitress
+from config import ADMIN_USER, ADMIN_PASS, DATA_DIR, ENVIRONMENT, SECRET_KEY
 
 app = Flask(__name__)
 auth = HTTPBasicAuth()
-
+app.config["SECRET_KEY"] = SECRET_KEY
 
 @auth.verify_password
 def verify_password(username, password):
@@ -76,4 +77,7 @@ def temperature_get():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    if ENVIRONMENT == "prod":
+        waitress.serve(app, host="0.0.0.0", port=8080)
+    else:
+        app.run(debug=True)
