@@ -1,11 +1,12 @@
-import smbus2
-import bme280
 import csv
 import os
 import urllib.request
 import json
 import datetime
-from config import WEATHER_API, DATA_DIR, LATITUDE, LONGITUDE
+import smbus2
+import bme280
+import paho.mqtt.client as mqtt
+from config import *
 
 def read_sensor():
     port = 1
@@ -73,14 +74,40 @@ def write_csv(filename, data, headers):
         print(stringified_data)
         writer.writerows([stringified_data])
 
+def on_connect(client, userdata, flags, reason_code, properties):
+    print(f"Connected with result code {reason_code}")
+    # Subscribing in on_connect() means that if we lose the connection and
+    # reconnect then subscriptions will be renewed.
+    client.subscribe(TOPIC)
+
+# The callback for when a PUBLISH message is received from the server.
+def on_message(client, userdata, msg):
+    return
+
+
 def main():
     sensor_data = read_sensor()
     api_data = read_api_weather_data()
     now = datetime.datetime.now()
+
     in_headers = ["time", "data_time", "temperature", "pressure", "humidity"]
     out_headers = ["time", "data_time", "temperature", "pressure", "humidity", "feels_like", "dew_point", "uv_index", "clouds", "wind_speed", "wind_deg", "weather"]
-    write_csv(f"inside_{now.strftime('%Y-%m')}.csv", [now.isoformat()] + sensor_data, in_headers)
-    write_csv(f"outside_{now.strftime('%Y-%m')}.csv", [now.isoformat()] + api_data, out_headers)
+    in_data = [now.isoformat()] + sensor_data
+    out_data = [now.isoformat()] + api_data
+
+    write_csv(f"inside_{now.strftime('%Y-%m')}.csv", in_data, in_headers)
+    write_csv(f"outside_{now.strftime('%Y-%m')}.csv", out_data, out_headers)
+
+    mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
+    mqtt_client.on_connect = on_connect
+    mqtt_client.on_message = on_message
+
+    # Keepalive 60 seconds
+    mqtt_client.connect(HOSTNAME, MQTT_PORT, 60)
+
+    mqtt_client.publish(f"{TOPIC}/in", json.dumps(in_data), qos=QOS)
+    mqtt_client.publish(f"{TOPIC}/out", json.dumps(out_data), qos=QOS)
+
 
 if __name__ == "__main__":
     main()

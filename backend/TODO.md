@@ -1,0 +1,4 @@
+- Setup and use database
+- Dockerize data_fetching setup and MQTT
+- Change Dockerfile in api
+- Test QoS
