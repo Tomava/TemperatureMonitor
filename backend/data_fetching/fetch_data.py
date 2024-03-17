@@ -8,6 +8,7 @@ import bme280
 import paho.mqtt.client as mqtt
 from config import *
 
+
 def read_sensor():
     port = 1
     address = 0x77
@@ -24,7 +25,13 @@ def read_sensor():
     pressure = data.pressure
     humidity = data.humidity
 
-    return [data_time, temperature, pressure, humidity]
+    return {
+        "data_time": data_time,
+        "temperature": temperature,
+        "pressure": pressure,
+        "humidity": humidity,
+    }
+
 
 def fetch_api_weather_data():
     """
@@ -39,9 +46,10 @@ def fetch_api_weather_data():
         return None
     return data
 
+
 def read_api_weather_data():
     data = fetch_api_weather_data()
-    fetched_data = []
+    fetched_data = {}
     if data is not None:
         current_data = data.get("current")
         data_time = current_data.get("dt")
@@ -55,8 +63,21 @@ def read_api_weather_data():
         wind_speed = current_data.get("wind_speed")
         wind_deg = current_data.get("wind_deg")
         weather = current_data.get("weather")[0].get("description")
-        fetched_data.extend([data_time, temperature, pressure, humidity, feels_like, dew_point, uv_index, clouds, wind_speed, wind_deg, weather])
+        fetched_data = {
+                "data_time": data_time,
+                "temperature": temperature,
+                "pressure": pressure,
+                "humidity": humidity,
+                "feels_like": feels_like,
+                "dew_point": dew_point,
+                "uv_index": uv_index,
+                "clouds": clouds,
+                "wind_speed": wind_speed,
+                "wind_deg": wind_deg,
+                "weather": weather,
+        }
     return fetched_data
+
 
 def write_csv(filename, data, headers):
     filepath = os.path.join(DATA_DIR, filename)
@@ -74,11 +95,13 @@ def write_csv(filename, data, headers):
         print(stringified_data)
         writer.writerows([stringified_data])
 
+
 def on_connect(client, userdata, flags, reason_code, properties):
     print(f"Connected with result code {reason_code}")
     # Subscribing in on_connect() means that if we lose the connection and
     # reconnect then subscriptions will be renewed.
     client.subscribe(TOPIC)
+
 
 # The callback for when a PUBLISH message is received from the server.
 def on_message(client, userdata, msg):
@@ -86,17 +109,33 @@ def on_message(client, userdata, msg):
 
 
 def main():
+    # TODO: Timed loop here
     sensor_data = read_sensor()
     api_data = read_api_weather_data()
     now = datetime.datetime.now()
 
     in_headers = ["time", "data_time", "temperature", "pressure", "humidity"]
-    out_headers = ["time", "data_time", "temperature", "pressure", "humidity", "feels_like", "dew_point", "uv_index", "clouds", "wind_speed", "wind_deg", "weather"]
-    in_data = [now.isoformat()] + sensor_data
-    out_data = [now.isoformat()] + api_data
+    out_headers = [
+        "time",
+        "data_time",
+        "temperature",
+        "pressure",
+        "humidity",
+        "feels_like",
+        "dew_point",
+        "uv_index",
+        "clouds",
+        "wind_speed",
+        "wind_deg",
+        "weather",
+    ]
+    in_data_csv = [now.isoformat()] + list(sensor_data.values())
+    out_data_csv = [now.isoformat()] + list(api_data.values())
+    sensor_data["time"] = now.isoformat()
+    api_data["time"] = now.isoformat()
 
-    write_csv(f"inside_{now.strftime('%Y-%m')}.csv", in_data, in_headers)
-    write_csv(f"outside_{now.strftime('%Y-%m')}.csv", out_data, out_headers)
+    write_csv(f"inside_{now.strftime('%Y-%m')}.csv", in_data_csv, in_headers)
+    write_csv(f"outside_{now.strftime('%Y-%m')}.csv", out_data_csv, out_headers)
 
     mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
     mqtt_client.on_connect = on_connect
@@ -105,8 +144,8 @@ def main():
     # Keepalive 60 seconds
     mqtt_client.connect(HOSTNAME, MQTT_PORT, 60)
 
-    mqtt_client.publish(f"{TOPIC}/in", json.dumps(in_data), qos=QOS)
-    mqtt_client.publish(f"{TOPIC}/out", json.dumps(out_data), qos=QOS)
+    mqtt_client.publish(f"{TOPIC}/in", json.dumps(sensor_data), qos=QOS)
+    mqtt_client.publish(f"{TOPIC}/out", json.dumps(api_data), qos=QOS)
 
 
 if __name__ == "__main__":

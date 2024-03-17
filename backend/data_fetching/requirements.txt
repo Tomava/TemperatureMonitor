@@ -1,2 +1,3 @@
+python-dotenv==1.0.1
 RPi.bme280==0.2.4
 paho-mqtt==2.0.0

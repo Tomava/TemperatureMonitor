@@ -11,4 +11,4 @@ LONGITUDE = os.getenv('LONGITUDE')
 HOSTNAME = os.getenv('HOSTNAME')
 MQTT_PORT = int(os.getenv('MQTT_PORT'))
 TOPIC = os.getenv('TOPIC')
-QOS = 1
+QOS = 2
