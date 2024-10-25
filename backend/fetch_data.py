@@ -30,7 +30,7 @@ def fetch_api_weather_data():
     Fetches the weather data and returns it as a dict
     :return: dict
     """
-    url = f"https://api.openweathermap.org/data/2.5/onecall?lat={LATITUDE}&lon={LONGITUDE}&exclude=minutely,hourly,daily,alerts&appid={WEATHER_API}&units=metric"
+    url = f"https://api.openweathermap.org/data/2.5/weather?lat={LATITUDE}&lon={LONGITUDE}&exclude=minutely,hourly,daily,alerts&appid={WEATHER_API}&units=metric"
     try:
         with urllib.request.urlopen(url) as site:
             data = json.loads(site.read())
@@ -42,19 +42,15 @@ def read_api_weather_data():
     data = fetch_api_weather_data()
     fetched_data = []
     if data is not None:
-        current_data = data.get("current")
-        data_time = current_data.get("dt")
-        temperature = current_data.get("temp")
-        feels_like = current_data.get("feels_like")
-        pressure = current_data.get("pressure")
-        humidity = current_data.get("humidity")
-        dew_point = current_data.get("dew_point")
-        uv_index = current_data.get("uvi")
-        clouds = current_data.get("clouds")
-        wind_speed = current_data.get("wind_speed")
-        wind_deg = current_data.get("wind_deg")
-        weather = current_data.get("weather")[0].get("description")
-        fetched_data.extend([data_time, temperature, pressure, humidity, feels_like, dew_point, uv_index, clouds, wind_speed, wind_deg, weather])
+        main_data = data.get("main")
+        data_time = data.get("dt")
+        temperature = main_data.get("temp")
+        feels_like = main_data.get("feels_like")
+        pressure = main_data.get("pressure")
+        humidity = main_data.get("humidity")
+        clouds = data.get("clouds").get("all")
+        weather = main_data.get("weather")[0].get("description")
+        fetched_data.extend([data_time, temperature, pressure, humidity, feels_like, None, None, clouds, None, None, weather])
     return fetched_data
 
 def write_csv(filename, data, headers):
