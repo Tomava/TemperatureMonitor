@@ -49,7 +49,7 @@ def read_api_weather_data():
         pressure = main_data.get("pressure")
         humidity = main_data.get("humidity")
         clouds = data.get("clouds").get("all")
-        weather = main_data.get("weather")[0].get("description")
+        weather = data.get("weather")[0].get("description")
         fetched_data.extend([data_time, temperature, pressure, humidity, feels_like, None, None, clouds, None, None, weather])
     return fetched_data
 
